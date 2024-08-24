@@ -12,6 +12,7 @@
 	<artifactId>crudprojects</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>crudprojects</name>
+	<packaging>jar</packaging>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
