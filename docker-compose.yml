@@ -15,8 +15,8 @@ services:
       - mysql-data:/var/lib/mysql
 
   springboot-app:
-    image: your-spring-boot-image
-    container_name: springboot-app
+    image: curd-image
+    container_name: curd-container
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/curd?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: koyembedu
