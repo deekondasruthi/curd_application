@@ -6,11 +6,11 @@ services:
     container_name: mysql-db
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: your_database
-      MYSQL_USER: your_user
-      MYSQL_PASSWORD: your_password
+      MYSQL_DATABASE: curd
+      MYSQL_USER: koyembedu
+      MYSQL_PASSWORD: Admin@123
     ports:
-      - "3305:3306"  # Maps host port 3305 to container port 3306
+      - "3305:3306"  
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -18,11 +18,12 @@ services:
     image: your-spring-boot-image
     container_name: springboot-app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://139.59.58.186:3306/your_database  # Connects to the mysql service
-      SPRING_DATASOURCE_USERNAME: your_user
-      SPRING_DATASOURCE_PASSWORD: your_password
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/curd?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: koyembedu
+      SPRING_DATASOURCE_PASSWORD: Admin@123
     depends_on:
       - mysql
 
 volumes:
   mysql-data:
+
