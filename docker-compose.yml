@@ -16,6 +16,10 @@ services:
     ports:
     -  8081:8086
     environment:
+      spring.datasource.url: jdbc:mysql://localhost:3306/curd?createDatabaseIfNotExist=true
+      spring.datasource.username: koyembedu
+      spring.datasource.password: Admin@123
+      
     depends on:
       - db
     networks:
