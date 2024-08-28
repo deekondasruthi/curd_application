@@ -7,10 +7,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    dir('curd_application') {
-                        sh 'mvn clean'
-                        sh 'mvn install'
-                    }
+                    sh 'mvn clean'
+                    sh 'mvn install'
                 }
             }
         }
