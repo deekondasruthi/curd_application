@@ -1,14 +1,9 @@
-FROM openjdk:17-alpine
+FROM openjdk:17
 
-WORKDIR /opt
+COPY target/crudprojects-0.0.1-SNAPSHOT.jar crudprojects-0.0.1-SNAPSHOT.jar
 
-RUN mkdir app
-
-COPY target/crudprojects-0.0.1-SNAPSHOT.jar /app/crudprojects-0.0.1-SNAPSHOT.jar
-
-RUN mv /app/crudprojects-0.0.1-SNAPSHOT.jar /app/ROOT.jar
+RUN mv crudprojects-0.0.1-SNAPSHOT.jar ROOT.jar
 
 EXPOSE 8086
 
-ENTRYPOINT ["java", "-jar", "/app/ROOT.jar"]
-
+ENTRYPOINT ["java", "-jar", "ROOT.jar"]
