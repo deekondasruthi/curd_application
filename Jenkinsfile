@@ -4,22 +4,6 @@ pipeline {
         maven "maven"
     }
     stages {
-        stage('Remove Existing Directory') {
-            steps {
-                script {
-                    sh 'rm -rf crud'
-                }
-            }
-        }
-
-        stage('Git Clone Repo') {
-            steps {
-                script {
-                    sh 'git clone -b main https://github.com/deekondasruthi/curd_application.git'
-                }
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 script {
@@ -44,9 +28,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dir('curd_application') {
-                        sh 'docker build -t curd-application-image .'
-                    }
+                    sh 'docker build -t curd-application-image .'
                 }
             }
         }
@@ -54,9 +36,7 @@ pipeline {
         stage('Build Docker-Compose File') {
             steps {
                 script {
-                    dir('curd_application') {
-                        sh 'docker-compose -f docker-compose.yml up -d'
-                    }
+                    sh 'docker-compose -f docker-compose.yml up -d'
                 }
             }
         }
