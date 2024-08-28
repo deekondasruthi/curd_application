@@ -4,7 +4,9 @@ WORKDIR /opt
 
 COPY target/crudprojects-0.0.1-SNAPSHOT.jar /app/crudprojects-0.0.1-SNAPSHOT.jar
 
+RUN mv /app/crudprojects-0.0.1-SNAPSHOT.jar /app/ROOT.jar
+
 EXPOSE 8086
 
-ENTRYPOINT exec java $JAVA_OPTS -jar crudprojects-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java", "-jar", "/app/ROOT.jar"]
 
