@@ -3,20 +3,20 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql-db
+    container_name: curd-mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: curd
       MYSQL_USER: koyembedu
       MYSQL_PASSWORD: Admin@123
     ports:
-      - "3305:3306"  
+      - "3305:3306"
     volumes:
       - mysql-data:/var/lib/mysql
 
   springboot-app:
-    image: curd-image
-    container_name: curd-container
+    image: curd-application-image
+    container_name: curd-application-container
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/curd?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: koyembedu
@@ -24,8 +24,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8086:8086" 
+    - "8085:8086"
 
 volumes:
   mysql-data:
-
