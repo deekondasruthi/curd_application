@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.simple.demo.Service.CurdService;
 import com.simple.demo.dto.RequestDto;
@@ -51,6 +53,25 @@ public class CrudController {
 	@GetMapping("/getbyid/{id}")
 	public ResponseModel getById(@PathVariable("id") int id) {
 		return curdService.getById(id);
+
+	}
+
+	
+	@PostMapping("/create")
+	public ResponseModel addCreate(@RequestParam("name")String name,@RequestParam("age")int age,
+			@RequestParam("bloodGroup") String bloodGroup,
+			@RequestParam("email")String email,
+			@RequestParam("mobilNo")String mobileNo,
+			@RequestParam("image")MultipartFile image) {
+		
+		RequestDto dto=new RequestDto();
+		dto.setName(name);
+		dto.setAge(age);
+		dto.setEmail(email);
+		dto.setMobileNo(mobileNo);
+		dto.setBloodGroup(bloodGroup);
+		dto.setImage(image);
+		return curdService.addCreate(dto);
 
 	}
 
