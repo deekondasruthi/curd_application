@@ -15,6 +15,21 @@ services:
       - mysql-data:/var/lib/mysql
     restart: always
 
+
+springboot-app:
+    image: fa-check-image
+    container_name: fa-check-container
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/middleware_system?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: koyembedu
+      SPRING_DATASOURCE_PASSWORD: Admin@123
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+    restart: always
+
+
   springboot-app:
     image: curd-application-image
     container_name: curd-application-container
