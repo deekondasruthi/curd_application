@@ -26,7 +26,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8085:8080"
+      - "8085:8086"
     restart: always
 
   fa-check-application:
