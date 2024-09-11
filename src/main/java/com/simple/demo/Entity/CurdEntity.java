@@ -3,6 +3,7 @@ package com.simple.demo.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,12 +26,8 @@ public class CurdEntity {
 	private String bloodGroup;
 	private String emailAddress;
 	private String mobileNumber;
-	
+	private String image;
 
-	@OneToOne(fetch = FetchType.EAGER, optional = true, cascade = CascadeType.ALL)
-	@JoinColumn(name = "image", nullable = false)
-	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-	private DocumentEntity imgae;
 	
 	public int getId() {
 		return id;
@@ -56,12 +53,6 @@ public class CurdEntity {
 	public void setBloodGroup(String bloodGroup) {
 		this.bloodGroup = bloodGroup;
 	}
-	public DocumentEntity getImgae() {
-		return imgae;
-	}
-	public void setImgae(DocumentEntity imgae) {
-		this.imgae = imgae;
-	}
 	public String getEmailAddress() {
 		return emailAddress;
 	}
@@ -73,6 +64,12 @@ public class CurdEntity {
 	}
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 	
 	

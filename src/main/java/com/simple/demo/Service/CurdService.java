@@ -1,15 +1,12 @@
 package com.simple.demo.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,33 +14,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.simple.demo.Entity.AppConstants;
 import com.simple.demo.Entity.CurdEntity;
-import com.simple.demo.Entity.DocumentEntity;
 import com.simple.demo.Entity.DocumentRepository;
 import com.simple.demo.Entity.EmailService;
 import com.simple.demo.dto.RequestDto;
 import com.simple.demo.dto.ResponseModel;
 import com.simple.demo.repository.CurdRepository;
+import com.simple.demo.utils.FileUtils;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.DataSource;
-import jakarta.activation.FileDataSource;
-import jakarta.mail.Authenticator;
-import jakarta.mail.BodyPart;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Multipart;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class CurdService {
@@ -55,7 +42,8 @@ public class CurdService {
 	@Autowired
 	private DocumentRepository documentRepository;
 	
-	
+	@Autowired
+	ServletContext context;
 	@Autowired
 	private Environment env;
 	
@@ -150,19 +138,52 @@ public class CurdService {
 		try {
 			
 			 CurdEntity model=new CurdEntity();
+			 
 			 model.setName(dto.getName());
 			 model.setAge(dto.getAge());
 			 model.setEmailAddress(dto.getEmail());
 			 model.setMobileNumber(dto.getMobileNo());
 			 model.setBloodGroup(dto.getBloodGroup());
-			 DocumentEntity doc=new DocumentEntity();
-			 doc.setData(dto.getImage().getBytes());
-			 doc.setFileName(dto.getImage().getOriginalFilename());
-			 doc.setFileType(dto.getImage().getContentType());
-			 documentRepository.save(doc);
-			 if(!dto.getImage().getOriginalFilename().equalsIgnoreCase("blob")) {
-				 model.setImgae(doc);
-			 }
+			 model.setImage(saveImage(dto.getImage()));
+			 
+			 
+//			 
+//			 DocumentEntity doc=new DocumentEntity();
+//			 doc.setData(dto.getImage().getBytes());
+//			 doc.setFileName(dto.getImage().getOriginalFilename());
+//			 doc.setFileType(dto.getImage().getContentType());
+//			 documentRepository.save(doc);
+//			 
+//			 if(!dto.getImage().getOriginalFilename().equalsIgnoreCase("blob")) {
+//				 model.setImgae(doc);
+//			 }
+//			 
+//			 String folder = new FileUtils().genrateFolderName(" " + dto.getMobileNumber().trim().substring(0, 4));
+//
+//				String extensionType = null;
+//
+//				StringTokenizer st = new StringTokenizer(dto.getProfilePic().getOriginalFilename());
+//
+//				while (st.hasMoreElements()) {
+//					extensionType = st.nextElement().toString();
+//				}
+//
+//				String fileName = FileUtils.getRandomString() + "." + extensionType;
+//				model.setProfilePic(folder + "/" + fileName);
+//
+//
+//				Path currentworkingDir = Paths.get(context.getRealPath("/WEB-INF"));
+//				File saveFile = new File(currentworkingDir + "/adminuser/" + folder);
+//				saveFile.mkdir();
+//
+//				byte[] bytes = dto.getProfilePic().getBytes();
+//				Path path = Paths.get(saveFile + "/" + fileName);
+//				System.out.println(path);
+//				Files.write(path, bytes);
+			 
+			 
+			 	
+			 
 			 repository.save(model);
 			 emailService.sendmail(model);
 			 
@@ -180,7 +201,62 @@ public class CurdService {
 			return response;
 		}
 	}
+	
+	
+	
+	private String saveImage(MultipartFile profilePhoto) throws Exception{
 		
+			String extensionType = null;
+			StringTokenizer st = new StringTokenizer(profilePhoto.getOriginalFilename(), ".");
+			while (st.hasMoreElements()) {
+				extensionType = st.nextElement().toString();
+			}
+			String fileName = FileUtils.getRandomString() + "." + extensionType;
+
+			Path currentWorkingDir = Paths.get(context.getRealPath("/WEB-INF/"));
+			File saveFile = new File(currentWorkingDir + "/images/");
+			saveFile.mkdir();
+
+			byte[] bytes = profilePhoto.getBytes();
+			Path path = Paths.get(saveFile + "/" + fileName);
+			Files.write(path, bytes);
+			return fileName;
+		
+	}
+
+	public ResponseEntity<Resource> viewimage(int id, HttpServletRequest request) {
+		try {
+
+			Optional<CurdEntity>optModel=repository.findById(id);
+
+			if (optModel.isPresent() && optModel.get().getImage() != null) {
+
+				final Resource resource = resourceLoader
+						.getResource("/WEB-INF/images/" + optModel.get().getImage());
+				String contentType = null;
+
+				contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+				// Fallback to the default content type if type could not be determined
+				if (contentType == null) {
+					contentType = "application/octet-stream";
+				}
+				return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+						.header(HttpHeaders.CONTENT_DISPOSITION,
+								"attachment; filename=\"" + resource.getFilename() + "\"")
+						.body(resource);
+			} else {
+				return null;
+			}
+
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	
+	
+	
 }
 
 	

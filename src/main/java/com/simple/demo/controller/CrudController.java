@@ -1,6 +1,7 @@
 package com.simple.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import com.simple.demo.Service.CurdService;
 import com.simple.demo.dto.RequestDto;
 import com.simple.demo.dto.ResponseModel;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.PathParam;
 
 @RestController
@@ -72,7 +74,16 @@ public class CrudController {
 		dto.setBloodGroup(bloodGroup);
 		dto.setImage(image);
 		return curdService.addCreate(dto);
-
 	}
+	
+	
+	
+	@GetMapping("/viewgallerycategoryimage/{id}")
+	public ResponseEntity<Resource> viewimage(@PathVariable("id")int id, HttpServletRequest request) {
+		return curdService.viewimage(id,request);
+	}
+	
+	
+	
 
 }
