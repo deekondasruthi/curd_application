@@ -270,9 +270,9 @@ public class CurdService {
 		File file = new File(s.getParent().indent(0));
 		File parentDirectory = file.getParentFile();
 		
-		File saveFile = new File(parentDirectory.toString() + "/CrudDocuments" );
+		File saveFile = new File( "/opt/CrudDocuments" );
 		saveFile.mkdir();
-		return parentDirectory.toString() + "/CrudDocuments" ;
+		return  "/opt/CrudDocuments" ;
 	} 
 	
 	
