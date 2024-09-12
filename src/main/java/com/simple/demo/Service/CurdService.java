@@ -265,10 +265,7 @@ public class CurdService {
 	
 
 	public static String getfileFolder() {
-		Path currentRelativePath = Paths.get("");
-		File s = currentRelativePath.toAbsolutePath().toFile();
-		File file = new File(s.getParent().indent(0));
-		File parentDirectory = file.getParentFile();
+		
 		
 		File saveFile = new File( "/opt/CrudDocuments" );
 		saveFile.mkdir();
