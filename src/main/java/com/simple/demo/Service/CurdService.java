@@ -1,6 +1,8 @@
 package com.simple.demo.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -144,45 +147,9 @@ public class CurdService {
 			 model.setEmailAddress(dto.getEmail());
 			 model.setMobileNumber(dto.getMobileNo());
 			 model.setBloodGroup(dto.getBloodGroup());
-			 model.setImage(saveImage(dto.getImage()));
+		
 			 
-			 
-//			 
-//			 DocumentEntity doc=new DocumentEntity();
-//			 doc.setData(dto.getImage().getBytes());
-//			 doc.setFileName(dto.getImage().getOriginalFilename());
-//			 doc.setFileType(dto.getImage().getContentType());
-//			 documentRepository.save(doc);
-//			 
-//			 if(!dto.getImage().getOriginalFilename().equalsIgnoreCase("blob")) {
-//				 model.setImgae(doc);
-//			 }
-//			 
-//			 String folder = new FileUtils().genrateFolderName(" " + dto.getMobileNumber().trim().substring(0, 4));
-//
-//				String extensionType = null;
-//
-//				StringTokenizer st = new StringTokenizer(dto.getProfilePic().getOriginalFilename());
-//
-//				while (st.hasMoreElements()) {
-//					extensionType = st.nextElement().toString();
-//				}
-//
-//				String fileName = FileUtils.getRandomString() + "." + extensionType;
-//				model.setProfilePic(folder + "/" + fileName);
-//
-//
-//				Path currentworkingDir = Paths.get(context.getRealPath("/WEB-INF"));
-//				File saveFile = new File(currentworkingDir + "/adminuser/" + folder);
-//				saveFile.mkdir();
-//
-//				byte[] bytes = dto.getProfilePic().getBytes();
-//				Path path = Paths.get(saveFile + "/" + fileName);
-//				System.out.println(path);
-//				Files.write(path, bytes);
-			 
-			 
-			 	
+			 model.setImage(eventImage(dto.getImage()));
 			 
 			 repository.save(model);
 			 emailService.sendmail(model);
@@ -231,20 +198,17 @@ public class CurdService {
 
 			if (optModel.isPresent() && optModel.get().getImage() != null) {
 
-				final Resource resource = resourceLoader
-						.getResource("/WEB-INF/images/" + optModel.get().getImage());
-				String contentType = null;
+				Path filePath = Paths.get(getfileFolder() + "/image/").resolve(optModel.get().getImage() );
+				Resource resource = new UrlResource(filePath.toUri());
+				String extensionType = null;
 
-				contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+				extensionType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
 
-				// Fallback to the default content type if type could not be determined
-				if (contentType == null) {
-					contentType = "application/octet-stream";
-				}
-				return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-						.header(HttpHeaders.CONTENT_DISPOSITION,
-								"attachment; filename=\"" + resource.getFilename() + "\"")
-						.body(resource);
+				// Check if the file exists
+				if (resource.exists() || resource.isReadable()) {
+					return ResponseEntity.ok().header(org.apache.tika.metadata.HttpHeaders.CONTENT_TYPE, extensionType) // Adjust																						// needed
+							.body(resource);
+				} 
 			} else {
 				return null;
 			}
@@ -252,9 +216,64 @@ public class CurdService {
 		} catch (Exception e) {
 			return null;
 		}
+		return null;
 	}
 	
 	
+
+	public static String eventImage(MultipartFile image) throws IOException {
+		String extensionType = null;
+
+		StringTokenizer st = new StringTokenizer(image.getOriginalFilename());
+
+		while (st.hasMoreElements()) {
+			extensionType = st.nextElement().toString();
+		}
+		String fileName = FileUtils.getRandomString() + "." + extensionType;
+
+		Path currentworkingDir = Paths.get(getfileFolder());
+		File saveFile = new File(currentworkingDir + "/image");
+		saveFile.mkdir();
+
+		byte[] bytes = image.getBytes();
+		Path path = Paths.get(saveFile + "/" + fileName);
+
+		Files.write(path, bytes);
+
+		return fileName;
+	}
+
+	public static byte [] viewEventImage(String image, HttpServletRequest request) throws IOException {
+		try {
+
+			Path filePath = Paths.get(getfileFolder() + "/image/").resolve(image);
+			Resource resource = new UrlResource(filePath.toUri());
+			String extensionType = null;
+
+			extensionType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+			// Check if the file exists
+			if (resource.exists() || resource.isReadable()) {
+				return Files.readAllBytes(ResponseEntity.ok().header(org.apache.tika.metadata.HttpHeaders.CONTENT_TYPE, extensionType) // Adjust																						// needed
+						.body(resource).getBody().getFile().toPath());
+			} 
+			return null;
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
+	
+
+	public static String getfileFolder() {
+		Path currentRelativePath = Paths.get("");
+		File s = currentRelativePath.toAbsolutePath().toFile();
+		File file = new File(s.getParent().indent(0));
+		File parentDirectory = file.getParentFile();
+		
+		File saveFile = new File(parentDirectory.toString() + "/CrudDocuments" );
+		saveFile.mkdir();
+		return parentDirectory.toString() + "/CrudDocuments" ;
+	} 
 	
 	
 }
